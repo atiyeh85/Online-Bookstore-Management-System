@@ -37,7 +37,7 @@ login_manager.init_app(app)
 db = pymysql.connect(
         host="localhost",
         user="root",
-        password="123456Sql!@#$%^",
+        password="",
         database="e_bookstore",
         charset="utf8mb4",
         
