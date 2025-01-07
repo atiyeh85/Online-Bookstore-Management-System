@@ -1,0 +1,369 @@
+{% extends 'base.html' %}
+
+{% block title %}Employee Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+    .modal-dialog {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh; /* Full viewport height */
+}
+.modal {
+    z-index: 1055; /* Ensure modal is above other UI components */
+}
+.modal-backdrop {
+    z-index: 1050; /* Ensure backdrop is below the modal */
+}
+
+</style>
+<div class="container-fluid my-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <aside class="col-md-3">
+            <div class="bg-light p-3 rounded shadow-sm">
+                {% if 'employee' in current_user.roles %}
+                <!-- Employee Card -->
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>Employee Dashboard</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="{{ url_for('employee_dashboard') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-box-seam me-2"></i> Manage Orders
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('allbooks') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-book-fill me-2"></i> All Books
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('add_author') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-person-plus me-2"></i> Add Author
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('addbook') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i> Add Book 
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('manage_books') }}" class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i> Add Book Inventory/pricing
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Charts Card -->
+                <div class="card mb-3">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="bi bi-bar-chart-line me-2"></i>Charts</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="{{ url_for('inventory_consistency_report') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-graph-up-arrow me-2"></i> Check Inventory Consistency
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('compare_years_months') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-graph-up-arrow me-2"></i> Sales by Year and month
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('render_users_by_year') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-graph-up-arrow me-2"></i> Users by Year
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('render_customer_login_summary') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-person-lines-fill me-2"></i> Customer Login Summary
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('charts') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-bar-chart me-2"></i> Overview
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('render_yearly_profit_data') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-bar-chart me-2"></i> Profits-Yearly
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if 'customer' in current_user.roles %}
+                <!-- Customer Card -->
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-cart-check me-2"></i>Customer Dashboard</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="{{ url_for('customer_dashboard') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-cart me-2"></i> My Orders
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('allbooks') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-home me-2"></i> Home
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="col-md-9">
+            <div class="card mb-2  border-dark ">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="my-0 fw-normal">Add a New Book</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('addbook') }}" class="p-4 ">
+                        <div class="row mb-3">
+                            <!-- ISBN -->
+                            <div class="col-md-6">
+                                <label for="isbn" class="form-label">ISBN:</label>
+                                <input type="text" id="isbn" name="isbn" class="form-control" required>
+                            </div>
+        
+                            <!-- Title -->
+                            <div class="col-md-6">
+                                <label for="title" class="form-label">Title:</label>
+                                <input type="text" id="title" name="title" class="form-control" required>
+                            </div>
+                        </div>
+        
+                        <div class="row mb-3">
+                            <!-- Genre -->
+                            <div class="col-md-6">
+                                <label for="genre_id" class="form-label">Genre:</label>
+                                <select id="genre_id" name="genre_id" class="form-select" required>
+                                    <option value="" disabled selected>Select a Genre</option>
+                                    {% for genre in genres %}
+                                    <option value="{{ genre['genre_id'] }}">{{ genre['genre_title'] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+        
+                            <!-- Publisher -->
+                            <div class="col-md-6">
+                                <label for="publisher_id" class="form-label">Publisher:</label>
+                                <select id="publisher_id" name="publisher_id" class="form-select" required>
+                                    <option value="" disabled selected>Select a Publisher</option>
+                                    {% for publisher in publishers %}
+                                    <option value="{{ publisher['publisher_id'] }}">{{ publisher['publisher_name'] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+        
+        
+                        <!-- Authors -->
+                        <div class="mb-3">
+                            <label for="authors" class="form-label">Select Authors:</label>
+                            {% if authors %}
+                            <div class="d-flex flex-wrap">
+                                {% for author in authors %}
+                                <div class="form-check me-3">
+                                    <input 
+                                        type="checkbox" 
+                                        class="form-check-input" 
+                                        name="authors" 
+                                        value="{{ author['author_id'] }}" 
+                                        id="author_{{ author['author_id'] }}"
+                                        {% if author['author_id'] in selected_authors %}checked{% endif %}>
+                                    <label for="author_{{ author['author_id'] }}" class="form-check-label">
+                                        {{ author['author_name'] }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p>No authors available.</p>
+                            {% endif %}
+                        </div>
+                        
+        
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-dark w-40">Add Book</button>
+                    </form>
+                </div>
+                
+            </div>
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h4 class="my-0 fw-normal">List of Books with Authors</h4>
+                </div>
+                <div class="card-body">
+                    {% if books %}
+                    <table class="table table-bordered table-striped" id="example">
+                        <thead class="bg-info text-white">
+                            <tr>
+                                <th>ISBN</th>
+                                <th>Title</th>
+                                <th>Authors</th>
+                                <th>Genre</th>
+                                <th>Publisher</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in books %}
+                            <tr>
+                                <td>{{ book['isbn'] }}</td>
+                                <td>{{ book['book_title'] }}</td>
+                                <td>
+                                    {% if book['authors'] %}
+                                        {{ book['authors'] }}
+                                    {% else %}
+                                        No authors available
+                                    {% endif %}
+                                </td>
+                                <td>{{ book['genre_title'] }}</td>
+                                <td>{{ book['publisher_name'] }}</td>
+                               
+                            </tr>
+                
+                            <div class="modal fade" id="manageModal_{{ book['isbn'] }}" tabindex="-1" aria-labelledby="manageModalLabel_{{ book['isbn'] }}" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-dark text-white">
+                                            <h5 class="modal-title" id="manageModalLabel_{{ book['isbn'] }}">Manage Pricing & Inventory for {{ book['book_title'] }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form method="POST" action="{{ url_for('manage_pricing_inventory') }}">
+                                            <div class="modal-body">
+                                                <!-- Hidden Field for ISBN -->
+                                                <input type="hidden" name="isbn" value="{{ book['isbn'] }}">
+                            
+                                                <div class="row mb-3">
+                                                    <!-- Format -->
+                                                    <div class="col-md-6">
+                                                        <label for="format_id_{{ book['isbn'] }}" class="form-label">Format</label>
+                                                        <select name="format_id" id="format_id_{{ book['isbn'] }}" class="form-select" required>
+                                                            <option value="" disabled selected>Select Format</option>
+                                                            {% for format in formats %}
+                                                            <option value="{{ format['format_id'] }}">{{ format['format_title'] }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                            
+                                                    <!-- Condition -->
+                                                    <div class="col-md-6">
+                                                        <label for="condition_id_{{ book['isbn'] }}" class="form-label">Condition</label>
+                                                        <select name="condition_id" id="condition_id_{{ book['isbn'] }}" class="form-select" required>
+                                                            <option value="" disabled selected>Select Condition</option>
+                                                            {% for condition in conditions %}
+                                                            <option value="{{ condition['condition_id'] }}">{{ condition['condition_title'] }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                            
+                                                <div class="row mb-3">
+                                                    <!-- Price -->
+                                                    <div class="col-md-6">
+                                                        <label for="price_{{ book['isbn'] }}" class="form-label">Price</label>
+                                                        <input type="number" step="0.01" name="price" id="price_{{ book['isbn'] }}" class="form-control" required>
+                                                    </div>
+                            
+                                                    <!-- Quantity -->
+                                                    <div class="col-md-6">
+                                                        <label for="quantity_{{ book['isbn'] }}" class="form-label">Quantity</label>
+                                                        <input type="number" name="quantity" id="quantity_{{ book['isbn'] }}" class="form-control" required>
+                                                    </div>
+                                                </div>
+                            
+                                                <div class="row mb-3">
+                                                    <!-- Available Quantity -->
+                                                    <div class="col-md-6">
+                                                        <label for="available_quantity_{{ book['isbn'] }}">Available Quantity</label>
+                                                        <input type="number" name="available_quantity_{{ book['isbn'] }}" id="available_quantity_{{ book['isbn'] }}" readonly>
+                                                        <input type="number" name="available_quantity" id="available_quantity_{{ book['isbn'] }}" readonly>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" class="btn btn-success" id="saveButton_{{ book['isbn'] }}">
+                                                    Save
+                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display:none;" id="spinner_{{ book['isbn'] }}"></span>
+                                                </button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p>No books available.</p>
+                    {% endif %}
+                </div>
+                
+            </div>
+                
+        </main>
+        
+    </div>
+</div>
+<script>
+document.querySelectorAll('.open-modal').forEach(button => {
+    button.addEventListener('click', function () {
+        const isbn = this.dataset.isbn;
+
+        // Fetch available quantity using only ISBN
+        fetch(`/get_available_quantity?isbn=${isbn}`)
+            .then(response => response.json())
+            .then(data => {
+                const availableQuantity = data.available_quantity || 0;
+                document.getElementById(`available_quantity_${isbn}`).value = availableQuantity;
+                alert(`Available Quantity: ${availableQuantity}`);
+            })
+            .catch(error => {
+                console.error('Error fetching available quantity:', error);
+                document.getElementById(`available_quantity_${isbn}`).value = 'Error';
+            });
+    });
+});
+
+
+
+</script>
+{% endblock %}

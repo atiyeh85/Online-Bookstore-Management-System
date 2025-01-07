@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+
+{% block title %}Customer_dashboard{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid my-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <aside class="col-md-3">
+            <div class="bg-light p-3 rounded shadow-sm">
+                {% if 'employee' in current_user.roles %}
+                <!-- Employee Card -->
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>Employee Dashboard</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="{{ url_for('employee_dashboard') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-box-seam me-2"></i> Manage Orders
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('allbooks') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-book-fill me-2"></i> All Books
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('add_author') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-person-plus me-2"></i> Add Author
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('addbook') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i> Add Book 
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('manage_books') }}" class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i> Add Book Inventory/pricing
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Charts Card -->
+                <div class="card mb-3">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="bi bi-bar-chart-line me-2"></i>Charts</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="{{ url_for('inventory_consistency_report') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-graph-up-arrow me-2"></i> Check Inventory Consistency
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('compare_years_months') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-graph-up-arrow me-2"></i> Sales by Year and month
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('render_users_by_year') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-graph-up-arrow me-2"></i> Users by Year
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('render_customer_login_summary') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-person-lines-fill me-2"></i> Customer Login Summary
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('charts') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-bar-chart me-2"></i> Overview
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if 'customer' in current_user.roles %}
+                <!-- Customer Card -->
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-cart-check me-2"></i>Customer Dashboard</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="{{ url_for('customer_dashboard') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-cart me-2"></i> My Orders
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('allbooks') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-home me-2"></i> Home
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </aside>
+        <!-- Main Content -->
+        <main class="col-md-9">
+            <div class="card mb-3 rounded-3 shadow-sm">
+                <div class="card-header py-3">
+                    <h4 class="my-0 fw-normal">User charts</h4>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title pricing-card-title"> <h1>Users Registered by Year</h1><small class="text-body-secondary fw-light"></small>
+                    </h1>
+
+                    <body>
+                        <div class="container">
+                            <div id="spinner" style="display: none; text-align: center;">Loading...</div>
+                        
+                            <select id="roleSelector" class="form-select col-md-5">
+                                <option value="customer">Customer</option>
+                                <option value="employee">Employee</option>
+                                <!-- Add more roles as needed -->
+                            </select>
+                            <canvas id="userChart" width="400" height="200"></canvas>
+                        </div>
+                        <script>
+                            function fetchAndRenderChart(role) {
+                                const spinner = document.getElementById('spinner'); // Assuming you have a spinner element
+                                spinner.style.display = 'block'; // Show spinner while fetching data
+                        
+                                // Fetch monthly data for the selected role
+                                fetch(`/data/users_by_month?role=${role}`)
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            throw new Error('Network response was not ok');
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        const ctx = document.getElementById('userChart').getContext('2d');
+                        
+                                        // Destroy the existing chart instance if it exists
+                                        if (window.myChart) {
+                                            window.myChart.destroy();
+                                        }
+                        
+                                        // Prepare data for the chart
+                                        const years = Object.keys(data); // Extract years from the data
+                                        const months = [
+                                            'January', 'February', 'March', 'April', 'May', 'June',
+                                            'July', 'August', 'September', 'October', 'November', 'December'
+                                        ];
+                                        const datasets = years.map(year => ({
+                                            label: year,
+                                            data: data[year], // Monthly data for the year
+                                            backgroundColor: getRandomColor(), // Generate a random color for each year
+                                            borderColor: getRandomColor(),
+                                            borderWidth: 1
+                                        }));
+                        
+                                        // Create the chart
+                                        window.myChart = new Chart(ctx, {
+                                            type: 'bar',
+                                            data: {
+                                                labels: months, // X-axis labels (Months)
+                                                datasets: datasets // Grouped bar data
+                                            },
+                                            options: {
+                                                responsive: true,
+                                                plugins: {
+                                                    legend: {
+                                                        display: true
+                                                    },
+                                                    title: {
+                                                        display: true,
+                                                        text: `Users Registered by Month (${role})`,
+                                                        font: {
+                                                            size: 16
+                                                        }
+                                                    },
+                                                    tooltip: {
+                                                        callbacks: {
+                                                            label: function (context) {
+                                                                return `Users: ${context.raw}`;
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                scales: {
+                                                    x: {
+                                                        title: {
+                                                            display: true,
+                                                            text: 'Month',
+                                                            font: {
+                                                                size: 14
+                                                            }
+                                                        },
+                                                        ticks: {
+                                                            color: '#555'
+                                                        }
+                                                    },
+                                                    y: {
+                                                        beginAtZero: true,
+                                                        title: {
+                                                            display: true,
+                                                            text: 'Number of Users',
+                                                            font: {
+                                                                size: 14
+                                                            }
+                                                        },
+                                                        ticks: {
+                                                            stepSize: 10, // Consistent step size
+                                                            color: '#555'
+                                                        },
+                                                        grid: {
+                                                            color: 'rgba(200, 200, 200, 0.3)', // Subtle grid line color
+                                                            borderDash: [5, 5]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    })
+                                    .catch(error => {
+                                        console.error('Error fetching chart data:', error);
+                                        alert('Failed to load chart data. Please try again later.');
+                                    })
+                                    .finally(() => {
+                                        spinner.style.display = 'none'; // Hide spinner after data is loaded
+                                    });
+                            }
+                        
+                            // Helper function to generate random colors for each dataset
+                            function getRandomColor() {
+                                const r = Math.floor(Math.random() * 255);
+                                const g = Math.floor(Math.random() * 255);
+                                const b = Math.floor(Math.random() * 255);
+                                return `rgba(${r}, ${g}, ${b}, 0.5)`;
+                            }
+                        
+                            // Initial chart load (default role: customer)
+                            document.addEventListener('DOMContentLoaded', () => {
+                                fetchAndRenderChart('customer');
+                            });
+                        
+                            // Update chart when the role changes
+                            document.getElementById('roleSelector').addEventListener('change', function () {
+                                fetchAndRenderChart(this.value);
+                            });
+                        </script>
+                        
+                        
+                        
+                    </body>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+
+
+{% endblock %}

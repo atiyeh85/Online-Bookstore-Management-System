@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4 text-center"><i class="bi bi-cart-check"></i> Checkout</h1>
+
+    <form action="{{ url_for('checkout') }}" method="POST">
+        <!-- Cart Summary -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0"><i class="bi bi-basket"></i> Cart Summary</h2>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th><i class="bi bi-book"></i> Book</th>
+                            <th><i class="bi bi-box-seam"></i> Quantity</th>
+                            <th><i class="bi bi-cash"></i> Unit Price</th>
+                            <th><i class="bi bi-receipt"></i> Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_items %}
+                        <tr>
+                            <td>{{ item.title }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>${{ item.unitprice }}</td>
+                            <td>${{ item.total_price }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="3" class="text-end">Total Amount</th>
+                            <th class="text-success">${{ total_amount }}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- Address Section -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <h2 class="mb-0"><i class="bi bi-geo-alt"></i> Shipping Address</h2>
+            </div>
+            <div class="card-body">
+                {% if addresses %}
+                {% for address in addresses %}
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="radio" name="address_id" id="address_{{ address.address_id }}" value="{{ address.address_id }}" >
+                    <label class="form-check-label" for="address_{{ address.address_id }}">
+                        <i class="bi bi-house"></i> {{ address.address_line1 }}, {{ address.address_line2 }}, {{ address.city_name }}, {{ address.state_name }}, {{ address.postalcode }}
+                    </label>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-exclamation-circle"></i> No saved addresses found. Please add a new address below.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- New Address Section -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h2 class="mb-0"><i class="bi bi-plus-square"></i> Add a New Address</h2>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="address_line1" class="form-label"><i class="bi bi-building"></i> Address Line 1</label>
+                        <input type="text" name="address_line1" id="address_line1" class="form-control" placeholder="123 Main St">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="address_line2" class="form-label"><i class="bi bi-building"></i> Address Line 2</label>
+                        <input type="text" name="address_line2" id="address_line2" class="form-control" placeholder="Apartment, suite, etc.">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="city_id" class="form-label"><i class="bi bi-map"></i> City</label>
+                        <select name="city_id" id="city_id" class="form-control">
+                            {% for city in cities %}
+                            <option value="{{ city.city_id }}">{{ city.city_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="state_id" class="form-label"><i class="bi bi-map"></i> State</label>
+                        <select name="state_id" id="state_id" class="form-control">
+                            {% for state in states %}
+                            <option value="{{ state.state_id }}">{{ state.state_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="postalcode" class="form-label"><i class="bi bi-envelope"></i> Postal Code</label>
+                        <input type="text" name="postalcode" id="postalcode" class="form-control" placeholder="12345">
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check mt-3">
+                            <input type="checkbox" name="save_address" id="save_address" class="form-check-input" value="1">
+                            <label for="save_address" class="form-check-label"><i class="bi bi-save"></i> Save this address for future use</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Method Section -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h2 class="mb-0"><i class="bi bi-credit-card"></i> Payment Information</h2>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="paymentmethod_id" class="form-label"><i class="bi bi-wallet2"></i> Payment Method</label>
+                    <select name="paymentmethod_id" id="paymentmethod_id" class="form-control" required>
+                        {% for method in paymentmethods %}
+                        <option value="{{ method.paymentmethod_id }}">{{ method.paymentmethod_title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-end">
+            <button type="submit" class="btn btn-success btn-lg shadow-sm">
+                <i class="bi bi-bag-check-fill"></i> Place Order
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+{% endblock %}

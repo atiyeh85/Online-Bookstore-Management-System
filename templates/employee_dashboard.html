@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+
+{% block title %}Employee Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-5">
+    <div class="row">
+        <aside class="col-md-3">
+            <div class="bg-light p-3 rounded shadow-sm">
+                {% if 'employee' in current_user.roles %}
+                    <!-- Employee Card -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>Employee Dashboard</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <a href="{{ url_for('employee_dashboard') }}" class="text-decoration-none d-flex align-items-center">
+                                        <i class="bi bi-box-seam me-2"></i> Manage Orders
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="{{ url_for('allbooks') }}" class="text-decoration-none d-flex align-items-center">
+                                        <i class="bi bi-book-fill me-2"></i> All Books
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="{{ url_for('add_author') }}" class="text-decoration-none d-flex align-items-center">
+                                        <i class="bi bi-person-plus me-2"></i> Add Author
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="{{ url_for('addbook') }}"
+                                        class="text-decoration-none d-flex align-items-center">
+                                        <i class="bi bi-box-arrow-in-right me-2"></i> Add Book 
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="{{ url_for('manage_books') }}" class="text-decoration-none d-flex align-items-center">
+                                        <i class="bi bi-box-arrow-in-right me-2"></i> Add Book Inventory/pricing
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Charts Card -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0"><i class="bi bi-bar-chart-line me-2"></i>Charts</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <a href="{{ url_for('inventory_consistency_report') }}" class="text-decoration-none d-flex align-items-center">
+                                        <i class="bi bi-graph-up-arrow me-2"></i> Check Inventory Consistency
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="{{ url_for('compare_years_months') }}" class="text-decoration-none d-flex align-items-center">
+                                        <i class="bi bi-graph-up-arrow me-2"></i> Sales by Year and month
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="{{ url_for('render_users_by_year') }}" class="text-decoration-none d-flex align-items-center">
+                                        <i class="bi bi-graph-up-arrow me-2"></i> Users by Year
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="{{ url_for('render_customer_login_summary') }}" class="text-decoration-none d-flex align-items-center">
+                                        <i class="bi bi-person-lines-fill me-2"></i> Customer Login Summary
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="{{ url_for('charts') }}" class="text-decoration-none d-flex align-items-center">
+                                        <i class="bi bi-bar-chart me-2"></i> Overview
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="{{ url_for('render_yearly_profit_data') }}"
+                                        class="text-decoration-none d-flex align-items-center">
+                                        <i class="bi bi-bar-chart me-2"></i> Profits-Yearly
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if 'customer' in current_user.roles %}
+                    <!-- Customer Card -->
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="bi bi-cart-check me-2"></i>Customer Dashboard</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <a href="{{ url_for('customer_dashboard') }}" class="text-decoration-none d-flex align-items-center">
+                                        <i class="bi bi-cart me-2"></i> My Orders
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="{{ url_for('allbooks') }}" class="text-decoration-none d-flex align-items-center">
+                                        <i class="bi bi-home me-2"></i> Home
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="col-md-9">
+            <!-- Search Form -->
+            <div class="card mb-4 rounded-3 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="fw-bold"><i class="bi bi-filter-circle me-2"></i>Search Orders</h4>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('employee_dashboard') }}">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="order_id" class="form-label fw-semibold">Order ID</label>
+                                <input type="text" class="form-control shadow-sm" id="order_id" name="order_id" 
+                                       value="{{ filters.order_id }}" placeholder="Enter order ID">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="customer_name" class="form-label fw-semibold">Customer Name</label>
+                                <input type="text" class="form-control shadow-sm" id="customer_name" name="customer_name" 
+                                       value="{{ filters.customer_name }}" placeholder="Enter customer name">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="customer_email" class="form-label fw-semibold">Customer Email</label>
+                                <input type="email" class="form-control shadow-sm" id="customer_email" name="customer_email" 
+                                       value="{{ filters.customer_email }}" placeholder="Enter customer email">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="status" class="form-label fw-semibold">Order Status</label>
+                                <select class="form-select shadow-sm" id="status" name="status">
+                                    <option value="">All</option>
+                                    {% for status in order_statuses %}
+                                    <option value="{{ status.order_status_id }}" 
+                                            {% if filters.status == status.order_status_id %}selected{% endif %}>
+                                        {{ status.status_name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="order_date_from" class="form-label fw-semibold">Order Date From</label>
+                                <input type="date" class="form-control shadow-sm" id="order_date_from" name="order_date_from" 
+                                       value="{{ filters.order_date_from }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="order_date_to" class="form-label fw-semibold">Order Date To</label>
+                                <input type="date" class="form-control shadow-sm" id="order_date_to" name="order_date_to" 
+                                       value="{{ filters.order_date_to }}">
+                            </div>
+                        </div>
+                        <div class="mt-3 text-end">
+                            <button type="submit" class="btn btn-primary shadow-sm"><i class="bi bi-search"></i> Search</button>
+                            <a href="{{ url_for('employee_dashboard') }}" class="btn btn-secondary shadow-sm"><i class="bi bi-x-circle"></i> Reset</a>
+                        </div>
+                    </form>
+                    
+                </div>
+            </div>
+
+            <!-- Order Report Table -->
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-secondary text-white">
+                    <h4 class="fw-bold"><i class="bi bi-table me-2"></i>Order Report</h4>
+                </div>
+                <div class="card-body">
+                    <input type="hidden" name="order_id" value="">
+                    <input type="hidden" name="order_status_id" value="">
+                    <div class="table-responsive">
+                        <form id="updateOrderForm" method="POST" action="{{ url_for('update_order_status') }}">
+                            <table class="table table-bordered table-hover"  id="example">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>#</th>
+
+                                        <th class="text-center">Order ID</th>
+                                        <th>Customer Name</th>
+                                        <th>Customer Email</th>
+                                        <th>Book Title</th>
+                                        <th>Ordered quantity</th>
+                                        <th>line_total </th>
+                                        <th>Total </th>
+                                        <th>Order Date</th>
+                                        <th>Order Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if orders and orders|length > 0 %}
+                                    {% for order in orders %}
+                                    <tr>
+                                        <td><img class="custom-image" 
+                                            src="{{ url_for('static', filename='images/' + order.image_path) }}"
+                                            alt="{{ order.book_title }} " width="50px" height="60px"></td>
+
+                                        <td class="text-center">{{ order.order_id }}</td>
+                                        <td>{{ order.customer_name }}</td>
+                                        <td>{{ order.customer_email }}</td>
+                                        <td>{{ order.book_title }}</td>
+                                        <td>{{ order.ordered_quantity }}</td>
+
+                                        <td>${{ order.line_total }}</td>
+                                        <td>${{ order.order_total }}</td>
+                                        <td>{{ order.order_date }}</td>
+                                        <td>
+                                            <select class="form-select form-select-sm status-dropdown" 
+                                            name="order_status_id_{{ order.order_id }}" 
+                                            data-order-id="{{ order.order_id }}">
+                                        {% for status in order_statuses %}
+                                        <option value="{{ status.order_status_id }}" 
+                                            {% if status.order_status_id == order.order_status_id %}selected{% endif %}>
+                                            {{ status.status_name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-primary view-order" data-order-id="{{ order.order_id }}">
+                                                <i class="bi bi-eye"></i> View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center">No orders available.</td>
+                                    </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- DataTable Initialization -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const table = new DataTable('#orderReportTable', {
+            searchable: true,
+            sortable: true,
+            fixedHeight: true,
+        });
+    });
+    
+</script>
+<script>
+   document.addEventListener('DOMContentLoaded', () => {
+    // Get the form element once
+    const form = document.getElementById('updateOrderForm');
+
+    // Add event listeners to all dropdowns
+    document.querySelectorAll('.status-dropdown').forEach(dropdown => {
+        dropdown.addEventListener('change', (event) => {
+            const orderId = event.target.getAttribute('data-order-id');
+            const newStatusId = event.target.value;
+
+            // Clear any previous hidden inputs for order_id to prevent duplicates
+            const existingInput = form.querySelector(`input[name="order_id"][value="${orderId}"]`);
+            if (existingInput) {
+                existingInput.remove();
+            }
+
+            // Add the hidden input for order_id
+            const hiddenOrderIdInput = document.createElement('input');
+            hiddenOrderIdInput.type = 'hidden';
+            hiddenOrderIdInput.name = 'order_id';
+            hiddenOrderIdInput.value = orderId;
+
+            // Add the hidden input for the new status ID
+            const hiddenStatusInput = document.createElement('input');
+            hiddenStatusInput.type = 'hidden';
+            hiddenStatusInput.name = 'order_status_id';
+            hiddenStatusInput.value = newStatusId;
+
+            // Append inputs to the form
+            form.appendChild(hiddenOrderIdInput);
+            form.appendChild(hiddenStatusInput);
+
+            // Submit the form
+            form.submit();
+        });
+    });
+});
+
+</script>
+{% endblock %}

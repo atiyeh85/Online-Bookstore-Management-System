@@ -1,0 +1,233 @@
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{% extends 'base.html' %}
+
+{% block title %}Customer_dashboard{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid my-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <aside class="col-md-3">
+            <div class="bg-light p-3 rounded shadow-sm">
+                {% if 'employee' in current_user.roles %}
+                <!-- Employee Card -->
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>Employee Dashboard</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="{{ url_for('employee_dashboard') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-box-seam me-2"></i> Manage Orders
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('allbooks') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-book-fill me-2"></i> All Books
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('add_author') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-person-plus me-2"></i> Add Author
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('addbook') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i> Add Book 
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('manage_books') }}" class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i> Add Book Inventory/pricing
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Charts Card -->
+                <div class="card mb-3">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="bi bi-bar-chart-line me-2"></i>Charts</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="{{ url_for('inventory_consistency_report') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-graph-up-arrow me-2"></i> Check Inventory Consistency
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('compare_years_months') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-graph-up-arrow me-2"></i> Sales by Year and month
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('render_users_by_year') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-graph-up-arrow me-2"></i> Users by Year
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('render_customer_login_summary') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-person-lines-fill me-2"></i> Customer Login Summary
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('charts') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-bar-chart me-2"></i> Overview
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('render_yearly_profit_data') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-bar-chart me-2"></i> Profits-Yearly
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if 'customer' in current_user.roles %}
+                <!-- Customer Card -->
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-cart-check me-2"></i>Customer Dashboard</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="{{ url_for('customer_dashboard') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-cart me-2"></i> My Orders
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('allbooks') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-home me-2"></i> Home
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="col-md-9">
+            <div class="card mb-3 rounded-3 shadow-sm">
+                <div class="card-header py-3">
+                    <h4 class="my-0 fw-normal">User charts</h4>
+                </div>
+                <div class="card-body">
+<canvas id="yearlyProfitChart"></canvas>
+<canvas id="booksChart" width="400" height="200"></canvas>
+
+                
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch('/data/yearly_profit_data')
+            .then(response => response.json())
+            .then(data => {
+                const labels = data.map(item => item.order_year);
+                const revenues = data.map(item => item.total_revenue);
+                const costs = data.map(item => item.total_cost);
+                const profits = data.map(item => item.profit);
+
+                const ctx = document.getElementById('yearlyProfitChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Revenue',
+                                data: revenues,
+                                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Cost',
+                                data: costs,
+                                backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Profit',
+                                data: profits,
+                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'top' },
+                            title: { display: true, text: 'Yearly Profit Analysis' }
+                        }
+                    }
+                });
+            });
+    });
+</script>
+<script>
+    // Fetch popular books data from the backend
+    fetch('/data/popular_books')
+        .then(response => response.json())
+        .then(data => {
+            // Extract book titles and quantities sold from the response data
+            const bookTitles = data.map(item => item.book_title);
+            const quantitiesSold = data.map(item => item.total_quantity_sold);
+
+            // Create the Chart.js chart
+            const ctx = document.getElementById('booksChart').getContext('2d');
+            const booksChart = new Chart(ctx, {
+                type: 'bar', // Bar chart
+                data: {
+                    labels: bookTitles, // The book titles as the x-axis labels
+                    datasets: [{
+                        label: 'Total Books Sold',
+                        data: quantitiesSold, // The total quantities sold as the y-axis values
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => console.error('Error fetching popular books data:', error));
+</script>
+
+
+{% endblock %}

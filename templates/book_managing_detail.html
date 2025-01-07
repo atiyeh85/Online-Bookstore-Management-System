@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+
+{% block title %}Customer Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <aside class="col-md-3">
+            <div class="bg-light p-3 rounded shadow-sm">
+                {% if 'employee' in current_user.roles %}
+                <!-- Employee Card -->
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>Employee Dashboard</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="{{ url_for('employee_dashboard') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-box-seam me-2"></i> Manage Orders
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('allbooks') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-book-fill me-2"></i> All Books
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('add_author') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-person-plus me-2"></i> Add Author
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('addbook') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i> Add Book 
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('manage_books') }}" class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i> Add Book Inventory/pricing
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Charts Card -->
+                <div class="card mb-3">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="bi bi-bar-chart-line me-2"></i>Charts</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="{{ url_for('inventory_consistency_report') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-graph-up-arrow me-2"></i> Check Inventory Consistency
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('compare_years_months') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-graph-up-arrow me-2"></i> Sales by Year and month
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('render_users_by_year') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-graph-up-arrow me-2"></i> Users by Year
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('render_customer_login_summary') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-person-lines-fill me-2"></i> Customer Login Summary
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('charts') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-bar-chart me-2"></i> Overview
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('render_yearly_profit_data') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-bar-chart me-2"></i> Profits-Yearly
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if 'customer' in current_user.roles %}
+                <!-- Customer Card -->
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-cart-check me-2"></i>Customer Dashboard</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="{{ url_for('customer_dashboard') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-cart me-2"></i> My Orders
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('allbooks') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-home me-2"></i> Home
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="col-md-9">
+            <div class="card mb-3 rounded-3 shadow-sm border-dark">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="my-0 fw-normal"><i class="bi bi-book"></i> Book Details</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Book Information -->
+                    <div class="row g-4">
+                        <div class="col-md-4 text-center">
+                            <img src="{{ url_for('static', filename='images/' + book['image_path']) }}" alt="Book Image"
+                                class="img-fluid rounded shadow" width="100px" height="100px">
+                        </div>
+                        <div class="col-md-8">
+                            <h1 class="text-primary">{{ book.title }}</h1>
+                            <p><strong>Authors:</strong>
+                                {% if book.authors %}
+                                {{ book.authors.split(', ') | join(', ') }}
+                                {% else %}
+                                No authors available
+                                {% endif %}
+                            </p>
+                            <p><strong>Genre:</strong> {{ book.genre_title }}</p>
+                            <p><strong>publisher Name :</strong> {{ book.publisher_title }}</p>
+                        </div>
+                        
+                    </div>
+
+                    <!-- Pricing Details -->
+                    <h2 class="text-secondary mt-5">Pricing Details</h2>
+                    {% if pricing_rows %}
+                    <table class="table table-bordered table-striped mt-3" id="example">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Format</th>
+                                <th>Condition</th>
+                                <th>Price</th>
+                                <th>Availability</th>
+                                <th>Availability</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pricing in pricing_rows %}
+                            <tr>
+                                <td>{{ pricing.format_title }}</td>
+                                <td>{{ pricing.condition_title }}</td>
+                                <td>${{ pricing.price }}</td>
+                                <td>{{ pricing.currentAvailablity }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-warning open-modal" data-bs-toggle="modal"
+                                        data-bs-target="#manageModal_{{ pricing['pricing_id'] }}"
+                                        data-pricing-id="{{ pricing['pricing_id'] }}">
+                                        Manage Pricing & Inventory
+                                    </button>
+
+
+                                </td>
+                            </tr>
+
+                            <div class="modal fade" id="manageModal_{{ pricing['pricing_id'] }}" tabindex="-1"
+                                aria-labelledby="manageModalLabel_{{ pricing['pricing_id'] }}" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-dark text-white">
+                                            <h5 class="modal-title" id="manageModalLabel_{{ pricing['pricing_id'] }}">
+                                                Manage Pricing & Inventory for {{ book['book_title'] }}
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <form method="POST" action="{{ url_for('manage_pricing_inventory') }}">
+
+                                            <div class="modal-body">
+                                                <!-- Hidden Field for Pricing ID -->
+                                                <input type="hidden" name="pricing_id"
+                                                    id="pricingIdInput_{{ pricing['pricing_id'] }}"
+                                                    value="{{ pricing['pricing_id'] }}">
+
+                                                <div class="row mb-3">
+                                                    <input type="text" value="{{ book['isbn'] }}" hidden id="isbn"
+                                                        name="isbn">
+
+                                                    <!-- Format -->
+                                                    <div class="col-md-6">
+                                                        <label for="format_id_{{ pricing['pricing_id'] }}"
+                                                            class="form-label">Format</label>
+                                                        <select name="format_id"
+                                                            id="format_id_{{ pricing['pricing_id'] }}"
+                                                            class="form-select" required>
+                                                            {% for format in formats %}
+                                                            <option value="{{ format['format_id'] }}" {% if
+                                                                format['format_id']==pricing['format_id'] %}selected{%
+                                                                endif %}>
+                                                                {{ format['format_title'] }}
+                                                            </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+
+                                                    <!-- Condition -->
+                                                    <div class="col-md-6">
+                                                        <label for="condition_id_{{ pricing['pricing_id'] }}"
+                                                            class="form-label">Condition</label>
+                                                        <select name="condition_id"
+                                                            id="condition_id_{{ pricing['pricing_id'] }}"
+                                                            class="form-select" required>
+                                                            {% for condition in conditions %}
+                                                            <option value="{{ condition['condition_id'] }}" {% if
+                                                                condition['condition_id']==pricing['condition_id']
+                                                                %}selected{% endif %}>
+                                                                {{ condition['condition_title'] }}
+                                                            </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mb-3">
+                                                    <!-- Price -->
+                                                    <div class="col-md-6">
+                                                        <label for="price_{{ pricing['pricing_id'] }}"
+                                                            class="form-label">Price</label>
+                                                        <input type="number" step="0.01" name="price"
+                                                            id="price_{{ pricing['pricing_id'] }}" class="form-control"
+                                                            value="{{ pricing['price'] }}" min="1" max="1000" required>
+                                                        <small class="text-muted">Enter a price between $1.00 and
+                                                            $1000.00</small>
+                                                    </div>
+                                                    <!-- Quantity -->
+                                                    <div class="col-md-6">
+                                                        <label for="quantity_{{ pricing['pricing_id'] }}"
+                                                            class="form-label">Quantity</label>
+                                                        <input type="number" name="quantity"
+                                                            id="quantity_{{ pricing['pricing_id'] }}"
+                                                            class="form-control" value="{{ pricing['quantity'] }}"
+                                                            min="0" step="1" required>
+                                                        <small class="text-muted">Enter a non-negative integer for the
+                                                            quantity.</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" class="btn btn-success">Save</button>
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-danger mt-3">No pricing details available for this book.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<script>
+    document.querySelectorAll('.open-modal').forEach(button => {
+        button.addEventListener('click', function () {
+            const pricingId = this.getAttribute('data-pricing-id'); // Fetch the pricing ID
+            const modalId = this.getAttribute('data-bs-target'); // Fetch the target modal ID
+            const modal = document.querySelector(modalId); // Get the modal element
+
+            if (modal) {
+                // Update the hidden input field for pricing ID
+                const pricingInput = modal.querySelector('input[name="pricing_id"]');
+                if (pricingInput) {
+                    pricingInput.value = pricingId;
+                }
+            }
+        });
+    });
+</script>
+
+
+{% endblock %}

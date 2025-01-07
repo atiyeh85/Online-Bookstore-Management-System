@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}Employee_dashboard{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid my-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <aside class="col-md-3">
+            <div class="bg-light p-3 rounded shadow-sm">
+                {% if 'employee' in current_user.roles %}
+                <!-- Employee Card -->
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>Employee Dashboard</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="{{ url_for('employee_dashboard') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-box-seam me-2"></i> Manage Orders
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('allbooks') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-book-fill me-2"></i> All Books
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('add_author') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-person-plus me-2"></i> Add Author
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('addbook') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i> Add Book Inventory
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Charts Card -->
+                <div class="card mb-3">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="bi bi-bar-chart-line me-2"></i>Charts</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="{{ url_for('inventory_consistency_report') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-graph-up-arrow me-2"></i> Check Inventory Consistency
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('compare_years_months') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-graph-up-arrow me-2"></i> Sales by Year and month
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('render_users_by_year') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-graph-up-arrow me-2"></i> Users by Year
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('render_customer_login_summary') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-person-lines-fill me-2"></i> Customer Login Summary
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('charts') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-bar-chart me-2"></i> Overview
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('render_yearly_profit_data') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-bar-chart me-2"></i> Profits-Yearly
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if 'customer' in current_user.roles %}
+                <!-- Customer Card -->
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-cart-check me-2"></i>Customer Dashboard</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="{{ url_for('customer_dashboard') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-cart me-2"></i> My Orders
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('allbooks') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-home me-2"></i> Home
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="col-md-9">
+            <div class="card mb-3 rounded-3 shadow-sm">
+                <div class="card-header py-3">
+                    <h4 class="my-0 fw-normal">Main Content</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('addbook') }}">
+                        <label for="isbn">ISBN:</label>
+                        <input type="text" id="isbn" name="isbn" required><br>
+                    
+                        <label for="title">Title:</label>
+                        <input type="text" id="title" name="title" required><br>
+                    
+                        <label for="genre_id">Genre:</label>
+                        <select id="genre_id" name="genre_id" required>
+                            {% for genre in genres %}
+                            <option value="{{ genre['genre_id'] }}">{{ genre['genre_title'] }}</option>
+                            {% endfor %}
+                        </select><br>
+                    
+                        <label for="publisher_id">Publisher:</label>
+                        <select id="publisher_id" name="publisher_id" required>
+                            {% for publisher in publishers %}
+                            <option value="{{ publisher['publisher_id'] }}">publisher['publisher_name']</option>
+                            {% endfor %}
+                        </select><br>
+                    
+                        <label for="popularity">Popularity:</label>
+                        <input type="number" id="popularity" name="popularity" required><br>
+                    
+                        <label for="publish_date">Publish Date:</label>
+                        <input type="date" id="publish_date" name="publish_date" required><br>
+                    
+                        <label for="authors">Select Authors:</label><br>
+                        {% for author in authors %}
+                            <input type="checkbox" name="authors" value="{{ author['author_id'] }}">
+                            <input type="checkbox" class="form-check-input" name="authors" value="{{ author['author_id'] }}" id="author_{{ author['author_id'] }}">
+                            <label for="author_{{ author['author_id'] }}" class="form-check-label">{{ author['author_name'] }}</label>
+                        {% endfor %}
+                    
+                        <button type="submit">Add Book</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+
+
+    {% endblock %}
+
+    

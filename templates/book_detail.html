@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block title %}Customer Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <aside class="col-md-3">
+            <div class="bg-light p-3 rounded shadow-sm">
+                {% if 'employee' in current_user.roles %}
+                <!-- Employee Card -->
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>Employee Dashboard</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="{{ url_for('employee_dashboard') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-box-seam me-2"></i> Manage Orders
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('allbooks') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-book-fill me-2"></i> All Books
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('add_author') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-person-plus me-2"></i> Add Author
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('addbook') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i> Add Book Inventory
+                                </a>
+                            </li>  <li class="mb-2">
+                                <a href="{{ url_for('addbook') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i> Add Book 
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('manage_books') }}" class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i> Add Book Inventory/pricing
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Charts Card -->
+                <div class="card mb-3">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="bi bi-bar-chart-line me-2"></i>Charts</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="{{ url_for('inventory_consistency_report') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-graph-up-arrow me-2"></i> Check Inventory Consistency
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('compare_years_months') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-graph-up-arrow me-2"></i> Sales by Year and month
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('render_users_by_year') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-graph-up-arrow me-2"></i> Users by Year
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('render_customer_login_summary') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-person-lines-fill me-2"></i> Customer Login Summary
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('charts') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-bar-chart me-2"></i> Overview
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('render_yearly_profit_data') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-bar-chart me-2"></i> Profits-Yearly
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if 'customer' in current_user.roles %}
+                <!-- Customer Card -->
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-cart-check me-2"></i>Customer Dashboard</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="{{ url_for('customer_dashboard') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-cart me-2"></i> My Orders
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('allbooks') }}"
+                                    class="text-decoration-none d-flex align-items-center">
+                                    <i class="bi bi-home me-2"></i> Home
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </aside>
+        <!-- Main Content -->
+        <main class="col-md-9">
+            <div class="card mb-3 rounded-3 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="my-0 fw-normal"><i class="bi bi-book"></i> Main Content</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row g-5">
+                        <!-- Book Image -->
+                        <div class="col-md-4 text-center">
+                            <img src="{{ url_for('static', filename='images/' + book['image_path']) }}" 
+                                 alt="Book Image" 
+                                 class="img-fluid rounded shadow">
+                        </div>
+
+                        <!-- Book Information -->
+                         
+                        <div class="col-md-8">
+                            <div class="cart-container">
+                                <!-- Dynamic messages will be appended here -->
+                            </div>
+                            <h1 class="display-5 fw-bold text-primary">{{ book.title }}</h1>
+                            <p class="text-muted mb-2">Author: <strong>{{ book.author_name }}</strong></p>
+                            <p class="text-muted mb-2">Genre: <strong>{{ book.genre_title }}</strong></p>
+                            <p class="text-muted mb-4">Popularity: {{ book.popularity }}</p>
+                            <hr>
+                            <h3 class="mt-4"><i class="bi bi-tags"></i> Available Formats and Pricing</h3>
+                            <div class="d-flex flex-wrap gap-3 mt-3">
+                                <!-- Pricing Options -->
+                                {% for row in pricing_rows %}
+                                <div class="card p-3 shadow-sm" style="width: 200px;">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title text-primary">{{ row.format_title }}</h5>
+                                        <p class="text-muted mb-1">Condition: {{ row.condition_title }}</p>
+                                        <p class="text-muted mb-1">Price: ${{ row.price }}</p>
+                                        <p class="text-muted mb-3">Available: {{ row.currentAvailablity }}</p>
+                                        <button 
+                                            type="button" 
+                                            class="btn btn-warning add-to-cart w-100" 
+                                            data-pricing-id="{{ row.pricing_id }}">
+                                            <i class="bi bi-cart-plus"></i> Add to Cart
+                                        </button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+{% endblock %}

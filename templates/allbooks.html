@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}Customer Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    .custom-image-container {
+        display: flex;
+        justify-content: center; /* Centers horizontally */
+        align-items: center; /* Centers vertically */
+        height: 180px; /* Fixed height to ensure consistency */
+        overflow: hidden; /* Hides any overflow from the image */
+    }
+
+    .custom-image {
+        width: auto; /* Automatically adjusts width */
+        height: 100%; /* Adjusts height to fill the container */
+        object-fit: cover; /* Maintains aspect ratio */
+        border-radius: 0.25rem; /* Optional: slight rounding for better aesthetics */
+    }
+
+    .card {
+        height: 100%; /* Ensures consistent card height */
+    }
+
+    .card-body, .card-footer {
+        text-align: center;
+    }
+
+    .card:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Adds hover effect */
+        transform: scale(1.02);
+        transition: all 0.3s ease-in-out;
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.css">
+
+<div class="container-fluid my-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <aside class="col-md-3">
+            <div class="card bg-light p-3 shadow-sm">
+                <form action="{{ url_for('allbooks') }}" method="GET">
+                    <!-- Search by Author -->
+                    <div class="sidebar-section mb-4">
+                        <h5><i class="bi bi-search"></i> Search by Author</h5>
+                        <input type="text" class="form-control awesomplete" id="author_name" name="author_name"
+                            placeholder="Enter author name">
+                    </div>
+                    
+                    <!-- Filter by Genres -->
+                    <div class="sidebar-section mb-4">
+                        <h5><i class="bi bi-bookmarks"></i> Genres</h5>
+                        {% for genre in genres %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="genre_id"
+                                id="genre_{{ genre['genre_id'] }}" value="{{ genre['genre_id'] }}"
+                                {% if genre['genre_id']|string in selected_genres %}checked{% endif %}>
+                            <label class="form-check-label" for="genre_{{ genre['genre_id'] }}">
+                                {{ genre['genre_title'] }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Filter by Formats -->
+                    <div class="sidebar-section mb-4">
+                        <h5><i class="bi bi-file-earmark"></i> Formats</h5>
+                        {% for format in formats %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="format_id"
+                                id="format_{{ format['format_id'] }}" value="{{ format['format_id'] }}"
+                                {% if format['format_id']|string in selected_formats %}checked{% endif %}>
+                            <label class="form-check-label" for="format_{{ format['format_id'] }}">
+                                {{ format['format_title'] }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                        
+                    <div class="mb-3">
+                        <label for="min_price" class="form-label">Min Price:</label>
+                        <input type="number" class="form-control" name="min_price" id="min_price" placeholder="1" value="{{ request.args.get('min_price', '') }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="max_price" class="form-label">Max Price:</label>
+                        <input type="number" class="form-control" name="max_price" id="max_price" placeholder="1000" value="{{ request.args.get('max_price', '') }}">
+                    </div>
+                    <button type="button" id="clearFilters" class="btn btn-warning w-100 p-2 mb-3">Clear Filters</button>
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-filter"></i> Apply Filters</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="col-md-9" id="books-container">
+            <div class="card mb-3 rounded-3 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="my-0 fw-normal"><i class="bi bi-collection"></i> List of Books</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for book in books %}
+                        <div class="col-md-4 col-lg-3">
+                            <div class="card h-100 text-center">
+                                <!-- Product image -->
+                                {% if book['image_path'] and book['image_path']|length > 0 %}
+                                <div class="custom-image-container">
+                                    <img class="custom-image"
+                                         src="{{ url_for('static', filename='images/' + book['image_path']) }}"
+                                         alt="{{ book['title'] }} cover">
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Product details -->
+                                <div class="card-body p-2">
+                                    <div class="text-center">
+                                        <!-- Product name -->
+                                        <p class="mb-1"><a href="{{ url_for('book_detail', isbn=book['isbn']) }}" class="text-decoration-none small">{{ book['title'] }}</a></p>
+                                        <!-- Product author -->
+                                        <p class="mb-1 text-muted small"><strong>{{ book['author_name'] }}</strong></p>
+                                        <!-- Product genre -->
+                                        <p class="mb-1 text-muted small">{{ book['genre_title'] }}</p>
+                                        <!-- Product price -->
+                                        {% if book['formats'] and book['formats'][0] %}
+                                            {% for format in book['formats'] %}
+                                            <p class="mb-1 small">${{ format['min_price'] }} - ${{ format['max_price'] }}</p>
+                                            {% endfor %}
+                                        {% else %}
+                                        <p class="mb-1 small text-muted">No price available</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Product actions -->
+                                <div class="card-footer bg-light border-0">
+                                    <a href="{{ url_for('book_detail', isbn=book['isbn']) }}"
+                                        class="btn btn-primary btn-sm w-100"><i class="bi bi-info-circle"></i> More Info</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const authorInput = document.getElementById("author_name");
+        const awesomplete = new Awesomplete(authorInput);
+
+        authorInput.addEventListener("input", async function () {
+            const query = authorInput.value.trim();
+            if (query.length < 2) return; // Minimum characters to trigger suggestions
+
+            // Fetch suggestions from the server
+            const response = await fetch(`/autocomplete/authors?q=${encodeURIComponent(query)}`);
+            const suggestions = await response.json();
+
+            // Populate Awesomplete suggestions
+            awesomplete.list = suggestions;
+        });
+    });
+</script>
+<script>
+    document.getElementById('min_price').addEventListener('input', function () {
+        if (this.value < 0) this.value = 1;
+        if (this.value > 1000) this.value = 1000;
+    });
+
+    document.getElementById('max_price').addEventListener('input', function () {
+        if (this.value < 0) this.value = 1;
+        if (this.value > 1000) this.value = 1000;
+    });
+
+    
+</script>
+
+<script>
+    document.getElementById('clearFilters').addEventListener('click', function () {
+        // Get the base URL without any query parameters
+        const baseUrl = window.location.origin + window.location.pathname;
+        window.history.pushState({}, '', baseUrl); // Update the URL without reloading
+        window.location.href = baseUrl; // Reload the page without query parameters
+    });
+</script>
+
+
+
+{% endblock %}
