@@ -10,7 +10,7 @@ from functools import wraps
 import json
 import stripe
 import traceback
-stripe.api_key = "IlOveY@u"
+stripe.api_key = "****"
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
     
@@ -19,7 +19,7 @@ def get_db_connection():
         return pymysql.connect(
             host="localhost",
             user="root",
-            password="123456Sql!@#$%^",
+            password="*****",
             database="e_bookstore",
             charset="utf8mb4",
             cursorclass=pymysql.cursors.DictCursor
