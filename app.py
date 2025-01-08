@@ -39,7 +39,7 @@ db = pymysql.connect(
         user="root",
         password="",
         database="e_bookstore",
-        charset="utf8mb4",
+       
         
     )
 
